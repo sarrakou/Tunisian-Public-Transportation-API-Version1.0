@@ -6,7 +6,7 @@ const pool = require("./db");
 
 app.get("/", (req,res) => {
 res.json({
-    message : 'Welcome to the API'
+    message : 'Welcome to my Web Services Project'
  });
 });
 app.use(express.json()); //express.json is the middleware
