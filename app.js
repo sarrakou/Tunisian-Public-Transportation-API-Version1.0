@@ -77,9 +77,7 @@ app.get('/busses',verifyToken, async (req,res) => {
         } else {
             try {
                 const allbusses = await pool.query("SELECT * FROM bus_lignes");
-                res.json({
-                    "message":"testing"
-                });
+                res.json(allbusses.rows);
             } catch(err) {
                 console.error(err.message);
             } 
@@ -94,7 +92,9 @@ app.get('/busses',verifyToken, async (req,res) => {
 app.get('/bussest', async (req,res) => {
             try {
                 const allbusses = await pool.query("SELECT * FROM bus_lignes");
-                res.json(allbusses.rows);
+                res.json({
+                    "message":"testing"
+                });
             } catch(err) {
                 console.error(err.message);
             } 
