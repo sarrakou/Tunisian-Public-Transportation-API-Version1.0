@@ -70,7 +70,7 @@ app.post('/register', async (req,res) => {
 });
 
 //get all busses
-app.get('/busses',verifyToken, async (req,res) => {
+app.get('/bussest',verifyToken, async (req,res) => {
     jwt.verify(req.token, 'secretkey', async (err, authData) => {
         if(err){
             res.sendStatus(403);
@@ -86,6 +86,17 @@ app.get('/busses',verifyToken, async (req,res) => {
     });
     
 });
+
+//get all busses
+app.get('/busses', async (req,res) => {
+            try {
+                const allbusses = await pool.query("SELECT * FROM bus_lignes");
+                res.json(allbusses.rows);
+            } catch(err) {
+                console.error(err.message);
+            } 
+    });
+
 
 //get a bus
 app.get('/busses/:station_name', async (req,res) => {
