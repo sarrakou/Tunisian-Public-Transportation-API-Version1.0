@@ -91,7 +91,7 @@ app.get('/busses',verifyToken, async (req,res) => {
 //get all busses
 app.get('/bussest', async (req,res) => {
             try {
-                const allbusses = await pool.query("SELECT * FROM bus_lignes");
+                //const allbusses = await pool.query("SELECT * FROM bus_lignes");
                 res.json({
                     "message":"testing"
                 });
