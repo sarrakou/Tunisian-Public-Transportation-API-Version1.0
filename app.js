@@ -81,7 +81,6 @@ app.get('/busses',verifyToken, async (req,res) => {
             } catch(err) {
                 console.error(err.message);
             } 
-
         }
     });
     
