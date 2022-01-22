@@ -3,30 +3,22 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const pool = require("./db");
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "public") ) );
+
+app.set('views', './views');
+app.set('view engine','ejs');
+
+
 
 app.get("/", (req,res) => {
-res.json({
-    message : 'Welcome to my Web Services Project'
- });
+ res.render('base');
 });
+
 app.use(express.json()); //express.json is the middleware
 
 //ROUTES//
-
-app.get('/busses/:station_name', async (req,res) => {
-    const{station_name} = req.params; 
-    try {
-        const bus = await pool.query("SELECT * FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
-        if (bus.rows.length == 0) {
-            res.json("this bus line does not exist");
-        } else {
-            res.json(bus.rows[0]); 
-        }
-    } catch(err) {
-        console.error(err.message);
-    } 
-   
-}); 
 
 //LOGIN (get a token)
 app.get('/auth', async (req,res) => {
@@ -87,121 +79,151 @@ app.get('/busses',verifyToken, async (req,res) => {
 });
     
 
-
 //get a bus
-app.get('/busses/:station_name', async (req,res) => {
+app.get('/busses/:station_name',verifyToken, async (req,res) => {
+    jwt.verify(req.token, 'secretkey', async (err, authData) => {
+        if(err){
+            res.sendStatus(403);
+        } else {
     const{station_name} = req.params; 
     try {
         const bus = await pool.query("SELECT * FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
         if (bus.rows.length == 0) {
             res.json("this bus line does not exist");
-        } else {
+            } else {
             res.json(bus.rows[0]); 
-        }
-    } catch(err) {
+                }
+        } catch(err) {
         console.error(err.message);
-    } 
+            }
+        } 
    
+    });
 }); 
 
 
 //create 
-app.post('/busses', async (req,res) => {
-
-    try {
-        const{ n_de_ligne,n_de_station ,nom_station} = req.body;
-        const newbus = await pool.query("INSERT INTO bus_lignes ( n_de_ligne,n_de_station ,nom_station) values($1,$2,$3) RETURNING * ", [n_de_ligne,n_de_station,nom_station]);
-            res.json(newbus.rows[0]);
-    } catch(err) {
-        console.error(err.message);
-    }
+app.post('/busses',verifyToken, async (req,res) => {
+    jwt.verify(req.token, 'secretkey', async (err, authData) => {
+        if(err){
+            res.sendStatus(403);
+        } else {
+        try {
+            const{ n_de_ligne,n_de_station ,nom_station} = req.body;
+            const newbus = await pool.query("INSERT INTO bus_lignes ( n_de_ligne,n_de_station ,nom_station) values($1,$2,$3) RETURNING * ", [n_de_ligne,n_de_station,nom_station]);
+                res.json(newbus.rows[0]);
+        } catch(err) {
+            console.error(err.message);
+            }
+        }
+    });
 });
 
 //update
-app.put('/busses/:station_name', async (req,res) => {
-    try {
-        const {station_name} = req.params;
-        const{n_de_ligne,n_de_station} = req.body;
-        const bus = await pool.query("SELECT * FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
-        if (bus.rows.length == 0) {
-            res.json("this bus line does not exist");
+app.put('/busses/:station_name',verifyToken, async (req,res) => {
+    jwt.verify(req.token, 'secretkey', async (err, authData) => {
+        if(err){
+            res.sendStatus(403);
         } else {
-        try {
-        const update_bus = await pool.query("UPDATE bus_lignes SET n_de_ligne = $1,n_de_station = $2 WHERE nom_station = $3  ",[n_de_ligne,n_de_station,station_name]);
-        res.json("the bus line was successfully updated!");
-    } catch(err) {
-        console.error(err.message);
-    }
-}
-} catch(err) {
-    console.error(err.message);}
-    });
+            try {
+                const {station_name} = req.params;
+                const{n_de_ligne,n_de_station} = req.body;
+                const bus = await pool.query("SELECT * FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
+                if (bus.rows.length == 0) {
+                    res.json("this bus line does not exist");
+                } else {
+                try {
+                const update_bus = await pool.query("UPDATE bus_lignes SET n_de_ligne = $1,n_de_station = $2 WHERE nom_station = $3  ",[n_de_ligne,n_de_station,station_name]);
+                res.json("the bus line was successfully updated!");
+            } catch(err) {
+                console.error(err.message);
+            }
+        }
+        } catch(err) {
+            console.error(err.message);}
+        }
+            });
+
+        });
 
 
 
 //delete
-app.delete('/busses/:station_name', async (req,res) => {
-    try {
-        const {station_name} = req.params;
-        const{n_de_ligne,n_de_station} = req.body;
-        const bus = await pool.query("SELECT * FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
-        if (bus.rows.length == 0) {
-            res.json("this bus line does not exist");
+app.delete('/busses/:station_name',verifyToken, async (req,res) => {
+    jwt.verify(req.token, 'secretkey', async (err, authData) => {
+        if(err){
+            res.sendStatus(403);
         } else {
-        try {
-        const delete_bus = await pool.query("DELETE FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
-        res.json(" the bus line was successfully deleted!");
-    } catch(err) {
-        console.error(err.message);
-    }
-}
-} catch(err) {
-    console.error(err.message);}
-    });
+            try {
+                const {station_name} = req.params;
+                const{n_de_ligne,n_de_station} = req.body;
+                const bus = await pool.query("SELECT * FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
+                if (bus.rows.length == 0) {
+                    res.json("this bus line does not exist");
+                } else {
+                try {
+                const delete_bus = await pool.query("DELETE FROM bus_lignes WHERE nom_station = $1 ",[station_name]);
+                res.json(" the bus line was successfully deleted!");
+            } catch(err) {
+                console.error(err.message);
+            }
+        }
+        } catch(err) {
+            console.error(err.message);}
+        }
+            });
+
+        });
 
 //MAIN FUNCTION OF THE API
 
-app.get('/busses/:departure_station/:destination_station', async (req,res) => {
-    const{departure_station} = req.params; 
-    const{destination_station} = req.params;
-    try {
-        const departure = await pool.query("SELECT n_de_ligne,n_de_station FROM bus_lignes WHERE nom_station = $1 ",[departure_station]);
-        const arrival = await pool.query("SELECT n_de_ligne,n_de_station FROM bus_lignes WHERE nom_station = $1 ",[destination_station]);
-        if (departure.rows.length == 0 || arrival.rows.length == 0) {
-            res.json("there is no bus station in your current location.");
+app.get('/busses/:departure_station/:destination_station',verifyToken, async (req,res) => {
+    jwt.verify(req.token, 'secretkey', async (err, authData) => {
+        if(err){
+            res.sendStatus(403);
         } else {
-            if ( (departure.rows[0].n_de_ligne == arrival.rows[0].n_de_ligne) && (departure.rows[0].n_de_station < arrival.rows[0].n_de_station) )  {
-                res.json("You should take the bus number "+departure.rows[0].n_de_ligne+" in the station number "+departure.rows[0].n_de_station+": "+departure_station+". The bus number "+arrival.rows[0].n_de_ligne+" stops in the station number "+arrival.rows[0].n_de_station+": "+destination_station+". Have a safe ride!"); 
-        } 
-        else {
-            s=0;
-            //res.json(departure);
-            //res.json(arrival);
-            p =[];
-            
-            for(let i = 1; i<departure.rowCount; i++){
-                for(let j=1;j<arrival.rowCount;j++){
-                if ( (departure.rows[i].n_de_ligne == arrival.rows[j].n_de_ligne) && (departure.rows[i].n_de_station < arrival.rows[j].n_de_station) ) {
-                    res.json("You should take the bus number "+departure.rows[i].n_de_ligne+" in the station number "+departure.rows[i].n_de_station+": "+departure_station+". The bus number "+arrival.rows[j].n_de_ligne+" stops in the station number "+arrival.rows[j].n_de_station+": "+destination_station+". Have a safe ride!");
-                }
+            const{departure_station} = req.params; 
+            const{destination_station} = req.params;
+            try {
+                const departure = await pool.query("SELECT n_de_ligne,n_de_station FROM bus_lignes WHERE nom_station = $1 ",[departure_station]);
+                const arrival = await pool.query("SELECT n_de_ligne,n_de_station FROM bus_lignes WHERE nom_station = $1 ",[destination_station]);
+                if (departure.rows.length == 0 || arrival.rows.length == 0) {
+                    res.json("there is no bus station in your current location.");
+                } else {
+                    if ( (departure.rows[0].n_de_ligne == arrival.rows[0].n_de_ligne) && (departure.rows[0].n_de_station < arrival.rows[0].n_de_station) )  {
+                        res.json("You should take the bus number "+departure.rows[0].n_de_ligne+" in the station number "+departure.rows[0].n_de_station+": "+departure_station+". The bus number "+arrival.rows[0].n_de_ligne+" stops in the station number "+arrival.rows[0].n_de_station+": "+destination_station+". Have a safe ride!"); 
+                } 
                 else {
-                    s++;
+                    s=0;
+                    //res.json(departure);
+                    //res.json(arrival);
+                    p =[];
+                    
+                    for(let i = 1; i<departure.rowCount; i++){
+                        for(let j=1;j<arrival.rowCount;j++){
+                        if ( (departure.rows[i].n_de_ligne == arrival.rows[j].n_de_ligne) && (departure.rows[i].n_de_station < arrival.rows[j].n_de_station) ) {
+                            res.json("You should take the bus number "+departure.rows[i].n_de_ligne+" in the station number "+departure.rows[i].n_de_station+": "+departure_station+". The bus number "+arrival.rows[j].n_de_ligne+" stops in the station number "+arrival.rows[j].n_de_station+": "+destination_station+". Have a safe ride!");
+                        }
+                        else {
+                            s++;
+                            }
+                        }
                     }
+
+                    if (s == (departure.rowCount-1)*(arrival.rowCount-1)){
+                        res.json("There is no bus available to take you to your destination.");
+                    }
+                }  
+
+                    
                 }
-            }
-
-            if (s == (departure.rowCount-1)*(arrival.rowCount-1)){
-                res.json("There is no bus available to take you to your destination.");
-            }
-        }  
-
-             
+            } catch(err) {
+                console.error(err.message);
+            } 
         }
-    } catch(err) {
-        console.error(err.message);
-    } 
-   
-}); 
+        
+        }); 
+    }); 
 
 //FORMAT OF TOKEN
 //authorization: jwt <access_token> 
