@@ -1,6 +1,9 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const {v4:uuidv4} = require("uuid");
+const bodyparser = require("body-parser");
 
+const router = require('./router');
 const app = express();
 const pool = require("./db");
 const path = require("path");
@@ -12,13 +15,42 @@ app.set('view engine','ejs');
 
 
 
+const session = require("express-session");
+
+app.use(express.static(path.join(__dirname, "public") ) );
+
+app.set('views', './views');
+app.set('view engine','ejs');
+
+
+app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({extended:true}));
+
+//app.use(express.json()); //express.json is the middleware
+app.use(session({
+    secret: uuidv4(), // to generate a uuid to make the session unique
+    resave: false,
+    saveUninitialized:true
+}));
+
+app.use('/route',router);
+
+//the base
 app.get("/", (req,res) => {
  res.render('base');
 });
 
 app.use(express.json()); //express.json is the middleware
 
-//ROUTES//
+//signup page
+app.get("/signup", (req,res) => {
+    res.render('signup');
+});
+
+//login page
+app.get("/login", (req,res) => {
+    res.render('login');
+});
 
 //LOGIN (get a token)
 app.get('/auth', async (req,res) => {
@@ -34,12 +66,11 @@ app.get('/auth', async (req,res) => {
                 const user ={
                     username : username,
                     pw : password
-                }
-                jwt.sign({user}, 'secretkey', { expiresIn: '1200s'}, (err,token) =>{
-                    res.json({
-                        token
-                    });
-                });
+                } 
+                const token = jwt.sign({user}, 'secretkey', { expiresIn: '1200s'});
+                res.json({
+                    token:token
+                });  
             }
             else {
                 res.json("password for user "+username+" INCORRECT");
