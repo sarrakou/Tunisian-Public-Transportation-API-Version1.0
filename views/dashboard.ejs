@@ -10,10 +10,9 @@
 
 </head>
 <body style="
-background-image: url('/images/bg1.jpg');
+background-image:linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ),  url('/images/bg1.jpg');
 height: 600px; 
   background-position: center;
-
   background-size: cover;
   margin-left:0;
   height:1000px;
@@ -105,17 +104,17 @@ font-family:-apple-system,system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif
 
    </a> 
    <br> <br> <br> <br> <br>
-   <div style="font-size:50px; margin-left:10px;font-weight: bold;"> Welcome <%= user %></div>
+   <div style="font-size:50px;font-weight: bold; text-align:center;color:antiquewhite"> Welcome <%= user %></div> <br>
     <p style="font-weight: bold;
-    padding-left:30px;"> What would you like to use ? </p>
-     <br> <br>
+    padding-left:30px; color:antiquewhite; font-size:20px;text-align: center;"> What would you like to use ? </p>
+     <br> <br><br> <br><br>
     <ul style=" list-style-type: none;
     padding:10px;
-    background-color: #ebc4d1;
-    opacity:0.85;
+    background-color: #ebbfc8;
+    opacity:0.8;
     width:1309px;
     padding-left: 30px;
-    margin-bottom: 0px;"> <nobr style="font-weight: bold;"> All The API endpoints :</nobr> 
+    margin-bottom: 0px;"> <br> <nobr style="font-weight: bold;"> All The API endpoints :</nobr> 
     <br><br>
         <li style="font-weight: bold; text-decoration: underline;"> GET requests : </li>
         <br>
@@ -368,6 +367,7 @@ font-family:-apple-system,system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif
             padding: 3px;
             transform: rotate(-45deg);
       -webkit-transform: rotate(-45deg);"> </nobr> Delete a specific tunisian public bus from the database. </li>
+      <br>
     </ul>
 
     <footer class="footer" style="font-weight: bold;
